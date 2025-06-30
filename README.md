@@ -12,11 +12,7 @@ A beautiful web application that generates Arabic poetry using AI (Claude 3.5 So
 - **Beautiful UI**: RTL Arabic interface with modern design
 - **Export Options**: Copy and download generated poems
 
-## 🚀 Live Demo
-
-[Add your deployed URL here]
-
-## 🛠️ Setup Instructions
+## ️ Setup Instructions
 
 ### Prerequisites
 
@@ -123,7 +119,12 @@ The AI automatically:
 - Maintains proper rhythm (وزن) and rhyme (قافية)
 - Uses clear and beautiful Modern Standard Arabic
 
-Simply enter your theme (like "الوطن") and desired number of verses!
+Simply enter your theme like:
+- "اكتب ابيات عن الحزن لفراق اختي"
+- "اكتب ابيات مدح في معلمتي" 
+- "اكتب ابيات عن حب الوطن"
+
+And choose your desired number of verses!
 
 ## 🔒 Security Features
 
