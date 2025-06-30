@@ -133,13 +133,6 @@
             line-height: 1.6;
         }
 
-        .options-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
         .generate-btn {
             width: 100%;
             background: linear-gradient(135deg, #4a69bd 0%, #6c5ce7 100%);
@@ -285,11 +278,6 @@
                 padding: 20px;
             }
 
-            .options-grid {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-
             .poem-container {
                 padding: 20px;
                 font-size: 1.1rem;
@@ -340,36 +328,12 @@
             <form id="poetry-form">
                 <div class="input-group">
                     <label for="theme">موضوع القصيدة:</label>
-                    <textarea id="theme" placeholder="مثال: الوطن" required></textarea>
+                    <textarea id="theme" placeholder="مثال: الوطن، الحب، الطبيعة، الأمل..." required></textarea>
                 </div>
 
-                <div class="options-grid">
-                    <div class="input-group">
-                        <label for="meter">البحر الشعري:</label>
-                        <select id="meter">
-                            <option value="البسيط">البسيط</option>
-                            <option value="الطويل">الطويل</option>
-                            <option value="الوافر">الوافر</option>
-                            <option value="الكامل">الكامل</option>
-                            <option value="الهزج">الهزج</option>
-                            <option value="الرجز">الرجز</option>
-                            <option value="المتقارب">المتقارب</option>
-                            <option value="الرمل">الرمل</option>
-                        </select>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="style">الأسلوب:</label>
-                        <select id="style">
-                            <option value="classical">كلاسيكي</option>
-                            <option value="modern">حديث</option>
-                        </select>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="verses">عدد الأبيات:</label>
-                        <input type="number" id="verses" min="2" max="10" value="4">
-                    </div>
+                <div class="input-group">
+                    <label for="verses">عدد الأبيات:</label>
+                    <input type="number" id="verses" min="2" max="10" value="4">
                 </div>
 
                 <button type="submit" class="generate-btn" id="generate-btn">
@@ -445,8 +409,6 @@
 
             async generatePoem() {
                 const theme = document.getElementById('theme').value.trim();
-                const meter = document.getElementById('meter').value;
-                const style = document.getElementById('style').value;
                 const verses = parseInt(document.getElementById('verses').value);
                 
                 if (!theme) {
@@ -458,7 +420,7 @@
                 this.clearMessages();
 
                 try {
-                    const poem = await this.callBackendAPI(theme, meter, style, verses);
+                    const poem = await this.callBackendAPI(theme, verses);
                     this.displayPoem(poem, theme);
                     this.showMessage('تم إنشاء القصيدة بنجاح', 'success');
                 } catch (error) {
@@ -468,7 +430,7 @@
                 }
             }
 
-            async callBackendAPI(theme, meter, style, verses) {
+            async callBackendAPI(theme, verses) {
                 const response = await fetch('/api/generate-poem', {
                     method: 'POST',
                     headers: {
@@ -476,8 +438,6 @@
                     },
                     body: JSON.stringify({
                         theme,
-                        meter,
-                        style,
                         verses,
                         provider: 'anthropic'
                     })
