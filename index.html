@@ -92,43 +92,6 @@
             color: #2e7d32;
         }
 
-        .api-provider-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 2px solid #e1e8ed;
-        }
-
-        .provider-tabs {
-            display: flex;
-            margin-bottom: 15px;
-            background: #e9ecef;
-            border-radius: 8px;
-            padding: 4px;
-        }
-
-        .provider-tab {
-            flex: 1;
-            padding: 10px;
-            text-align: center;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-        }
-
-        .provider-tab.active {
-            background: #4a69bd;
-            color: white;
-        }
-
-        .provider-tab.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            background: #dee2e6;
-        }
-
         .input-group {
             margin-bottom: 25px;
         }
@@ -370,20 +333,7 @@
             <!-- API Status Display -->
             <div class="api-status" id="api-status">
                 <h3>🔑 حالة API</h3>
-                <p id="api-status-message">جاري التحقق من مفاتيح API...</p>
-            </div>
-
-            <!-- API Provider Selection -->
-            <div class="api-provider-info">
-                <h3>🤖 اختيار مزود الخدمة</h3>
-                <div class="provider-tabs">
-                    <div class="provider-tab active" data-provider="anthropic" id="anthropic-tab">
-                        Anthropic (Claude)
-                    </div>
-                    <div class="provider-tab" data-provider="openai" id="openai-tab">
-                        OpenAI (GPT)
-                    </div>
-                </div>
+                <p id="api-status-message">جاري التحقق من الاتصال...</p>
             </div>
 
             <!-- Main Form -->
@@ -455,83 +405,32 @@
     <script>
         class ArabicPoetryGenerator {
             constructor() {
-                this.currentProvider = 'anthropic';
-                this.availableProviders = {};
-                this.checkApiProviders();
+                this.checkApiConnection();
                 this.initializeEventListeners();
             }
 
-            async checkApiProviders() {
+            async checkApiConnection() {
                 const statusElement = document.getElementById('api-status');
                 const messageElement = document.getElementById('api-status-message');
                 
                 try {
                     const response = await fetch('/api/providers');
-                    this.availableProviders = await response.json();
+                    const providers = await response.json();
                     
-                    const availableKeys = Object.keys(this.availableProviders).filter(key => this.availableProviders[key]);
-                    
-                    if (availableKeys.length === 0) {
-                        statusElement.className = 'api-status error';
-                        messageElement.textContent = '⚠️ لم يتم تكوين مفاتيح API على الخادم';
-                    } else {
+                    if (providers.anthropic) {
                         statusElement.className = 'api-status success';
-                        const providerNames = availableKeys.map(p => 
-                            p === 'anthropic' ? 'Anthropic (Claude)' : 'OpenAI (GPT)'
-                        ).join(' و ');
-                        messageElement.textContent = `✅ مفاتيح API متوفرة: ${providerNames}`;
-                        
-                        // Set default provider to first available
-                        this.currentProvider = availableKeys[0];
+                        messageElement.textContent = '✅ الاتصال بخدمة الذكاء الاصطناعي متاح';
+                    } else {
+                        statusElement.className = 'api-status error';
+                        messageElement.textContent = '⚠️ خدمة الذكاء الاصطناعي غير متوفرة حالياً';
                     }
-                    
-                    this.updateProviderTabs();
                 } catch (error) {
                     statusElement.className = 'api-status error';
                     messageElement.textContent = '❌ خطأ في الاتصال بالخادم';
                 }
             }
 
-            updateProviderTabs() {
-                const anthropicTab = document.getElementById('anthropic-tab');
-                const openaiTab = document.getElementById('openai-tab');
-                
-                // Enable/disable tabs based on available keys
-                if (!this.availableProviders.anthropic) {
-                    anthropicTab.classList.add('disabled');
-                    anthropicTab.title = 'مفتاح Anthropic API غير متوفر';
-                }
-                
-                if (!this.availableProviders.openai) {
-                    openaiTab.classList.add('disabled');
-                    openaiTab.title = 'مفتاح OpenAI API غير متوفر';
-                }
-                
-                this.updateActiveTab();
-            }
-
-            updateActiveTab() {
-                document.querySelectorAll('.provider-tab').forEach(tab => {
-                    tab.classList.remove('active');
-                });
-                
-                const activeTab = document.getElementById(`${this.currentProvider}-tab`);
-                if (activeTab && !activeTab.classList.contains('disabled')) {
-                    activeTab.classList.add('active');
-                }
-            }
-
             initializeEventListeners() {
-                // Provider tab switching
-                document.querySelectorAll('.provider-tab').forEach(tab => {
-                    tab.addEventListener('click', (e) => {
-                        if (!e.target.classList.contains('disabled')) {
-                            const provider = e.target.dataset.provider;
-                            this.switchApiProvider(provider);
-                        }
-                    });
-                });
-
                 // Form submission
                 document.getElementById('poetry-form').addEventListener('submit', (e) => {
                     e.preventDefault();
@@ -542,13 +441,6 @@
                 document.getElementById('copy-btn').addEventListener('click', () => {
                     this.copyPoem();
                 });
-            }
-
-            switchApiProvider(provider) {
-                if (this.availableProviders[provider]) {
-                    this.currentProvider = provider;
-                    this.updateActiveTab();
-                }
             }
 
             async generatePoem() {
@@ -562,18 +454,13 @@
                     return;
                 }
 
-                if (!this.availableProviders[this.currentProvider]) {
-                    this.showMessage(`مزود الخدمة ${this.currentProvider === 'anthropic' ? 'Anthropic' : 'OpenAI'} غير متوفر`, 'error');
-                    return;
-                }
-
                 this.showLoading(true);
                 this.clearMessages();
 
                 try {
                     const poem = await this.callBackendAPI(theme, meter, style, verses);
                     this.displayPoem(poem, theme);
-                    this.showMessage(`تم إنشاء القصيدة بنجاح باستخدام ${this.currentProvider === 'anthropic' ? 'Anthropic (Claude)' : 'OpenAI (GPT)'}`, 'success');
+                    this.showMessage('تم إنشاء القصيدة بنجاح', 'success');
                 } catch (error) {
                     this.showMessage(`خطأ: ${error.message}`, 'error');
                 } finally {
@@ -592,7 +479,7 @@
                         meter,
                         style,
                         verses,
-                        provider: this.currentProvider
+                        provider: 'anthropic'
                     })
                 });
 
