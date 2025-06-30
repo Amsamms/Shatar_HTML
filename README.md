@@ -1,12 +1,13 @@
 # 🎭 Arabic Poetry Generator
 
-A beautiful web application that generates Arabic poetry using AI (Claude 3.5 Sonnet and GPT-4), featuring traditional Arabic poetic meters and styles.
+A beautiful web application that generates Arabic poetry using AI (Claude 3.5 Sonnet), featuring intelligent meter selection and balanced poetic style.
 
 ## ✨ Features
 
-- **AI-Powered Poetry Generation**: Uses Claude 3.5 Sonnet and GPT-4o models
-- **Traditional Arabic Meters**: Supports 8 classical poetry meters (بحور الشعر)
-- **Multiple Styles**: Classical (كلاسيكي) and Modern (حديث) poetry styles
+- **AI-Powered Poetry Generation**: Uses Claude 3.5 Sonnet for high-quality Arabic poetry
+- **Intelligent Meter Selection**: AI automatically chooses the most appropriate poetic meter
+- **Balanced Style**: Creates poetry with a perfect balance between classical and modern styles
+- **Simple Interface**: Just enter a theme and number of verses - no complex choices needed
 - **Secure API Handling**: Backend server protects API keys
 - **Beautiful UI**: RTL Arabic interface with modern design
 - **Export Options**: Copy and download generated poems
@@ -28,8 +29,8 @@ A beautiful web application that generates Arabic poetry using AI (Claude 3.5 So
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/arabic-poetry-generator.git
-   cd arabic-poetry-generator
+   git clone https://github.com/Amsamms/Shatar_HTML.git
+   cd Shatar_HTML
    ```
 
 2. **Install dependencies**
@@ -42,9 +43,9 @@ A beautiful web application that generates Arabic poetry using AI (Claude 3.5 So
    # Copy the example file
    copy .env.example .env
    
-   # Edit .env and add your API keys
+   # Edit .env and add your API key
    ANTHROPIC_API_KEY=your_anthropic_api_key_here
-   OPENAI_API_KEY=your_openai_api_key_here
+   OPENAI_API_KEY=your_openai_api_key_here  # Optional, for future use
    PORT=3000
    ```
 
@@ -74,7 +75,7 @@ A beautiful web application that generates Arabic poetry using AI (Claude 3.5 So
 2. **Set environment variables**
    ```bash
    heroku config:set ANTHROPIC_API_KEY=your_key_here
-   heroku config:set OPENAI_API_KEY=your_key_here
+   # Optional: heroku config:set OPENAI_API_KEY=your_key_here
    ```
 
 3. **Deploy**
@@ -114,16 +115,15 @@ arabic-poetry-generator/
 └── README.md             # This file
 ```
 
-## 🎨 Supported Poetry Meters
+## 🎨 How It Works
 
-- البسيط (Al-Basit)
-- الطويل (At-Tawil)
-- الوافر (Al-Wafir)
-- الكامل (Al-Kamil)
-- الهزج (Al-Hazaj)
-- الرجز (Ar-Rajaz)
-- المتقارب (Al-Mutaqarib)
-- الرمل (Ar-Ramal)
+The AI automatically:
+- Selects the most appropriate Arabic poetic meter (بحر) based on your theme
+- Creates poetry with balanced style (neither too classical nor too modern)
+- Maintains proper rhythm (وزن) and rhyme (قافية)
+- Uses clear and beautiful Modern Standard Arabic
+
+Simply enter your theme (like "الوطن") and desired number of verses!
 
 ## 🔒 Security Features
 
@@ -136,11 +136,9 @@ arabic-poetry-generator/
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `ANTHROPIC_API_KEY` | Optional* | Your Anthropic (Claude) API key |
-| `OPENAI_API_KEY` | Optional* | Your OpenAI (GPT) API key |
+| `ANTHROPIC_API_KEY` | Yes | Your Anthropic (Claude) API key |
+| `OPENAI_API_KEY` | No | Your OpenAI (GPT) API key (for future use) |
 | `PORT` | No | Server port (default: 3000) |
-
-*At least one API key is required
 
 ## 🤝 Contributing
 
@@ -165,9 +163,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you encounter any issues or have questions:
 
-1. Check the [Issues](https://github.com/yourusername/arabic-poetry-generator/issues) page
+1. Check the [Issues](https://github.com/Amsamms/Shatar_HTML/issues) page
 2. Create a new issue if needed
-3. Contact: [your-email@example.com]
+3. Contact: ahmedsabri85@gmail.com
 
 ---
 
