@@ -1,10 +1,10 @@
 # 🎭 Arabic Poetry Generator
 
-A beautiful web application that generates Arabic poetry using AI (Claude 3.5 Sonnet), featuring intelligent meter selection and balanced poetic style.
+A beautiful web application that generates Arabic poetry using AI (Claude Sonnet 4), featuring intelligent meter selection and balanced poetic style.
 
 ## ✨ Features
 
-- **AI-Powered Poetry Generation**: Uses Claude 3.5 Sonnet for high-quality Arabic poetry
+- **AI-Powered Poetry Generation**: Uses Claude Sonnet 4 for superior Arabic poetry quality
 - **Intelligent Meter Selection**: AI automatically chooses the most appropriate poetic meter
 - **Balanced Style**: Creates poetry with a perfect balance between classical and modern styles
 - **Simple Interface**: Just enter a theme and number of verses - no complex choices needed

@@ -110,11 +110,11 @@ async function callAnthropicAPI(prompt, apiKey) {
     console.log('- API Key length:', apiKey.length);
     console.log('- API Key prefix:', apiKey.substring(0, 15) + '...');
     console.log('- Prompt length:', prompt.length);
-    console.log('- Model: claude-3-5-sonnet-20241022');
+    console.log('- Model: claude-sonnet-4-20250514');
     
     try {
         const requestBody = {
-            model: 'claude-3-5-sonnet-20241022',
+            model: 'claude-sonnet-4-20250514',
             max_tokens: 1000,
             temperature: 0.8,
             messages: [
