@@ -40,8 +40,10 @@ app.post('/api/generate-poem', async (req, res) => {
             return res.status(400).json({ error: 'Missing required parameters' });
         }
 
-        // Create enhanced Arabic prompt with specific meters
-        const prompt = `اكتب قصيدة عربية جميلة عن موضوع "${theme}"
+        // Create enhanced Arabic prompt with role-based instructions and specific meters
+        const systemRole = 'أنت شاعر عربي فصيح وخبير في العروض والقوافي، تُنشئ قصائد ملتزمة تماماً بالوزن والقافية وبالتشكيل.';
+        
+        const userPrompt = `اكتب قصيدة عربية جميلة عن موضوع "${theme}"
 
 المطلوب:
 
@@ -67,6 +69,11 @@ app.post('/api/generate-poem', async (req, res) => {
 
 اكتب القصيدة مباشرة بدون مقدمات أو تعليقات. اجعل كل بيت في سطر منفصل.`;
 
+        // For Anthropic (no system role support, combine in user message)
+        const anthropicPrompt = `${systemRole}
+
+${userPrompt}`;
+
         // Debug logging
         console.log('🎭 Poetry generation request:', { theme, provider, verses });
         console.log('🔑 API Keys status:', {
@@ -78,18 +85,18 @@ app.post('/api/generate-poem', async (req, res) => {
         
         if (provider === 'anthropic' && process.env.ANTHROPIC_API_KEY) {
             console.log('📞 Calling Anthropic API...');
-            poem = await callAnthropicAPI(prompt, process.env.ANTHROPIC_API_KEY);
+            poem = await callAnthropicAPI(anthropicPrompt, process.env.ANTHROPIC_API_KEY);
         } else if (provider === 'openai' && process.env.OPENAI_API_KEY) {
             console.log('📞 Calling OpenAI API...');
-            poem = await callOpenAIAPI(prompt, process.env.OPENAI_API_KEY);
+            poem = await callOpenAIAPI(systemRole, userPrompt, process.env.OPENAI_API_KEY);
         } else {
             // Fallback to available provider
             if (process.env.ANTHROPIC_API_KEY) {
                 console.log('📞 Fallback: Using Anthropic API...');
-                poem = await callAnthropicAPI(prompt, process.env.ANTHROPIC_API_KEY);
+                poem = await callAnthropicAPI(anthropicPrompt, process.env.ANTHROPIC_API_KEY);
             } else if (process.env.OPENAI_API_KEY) {
                 console.log('📞 Fallback: Using OpenAI API...');
-                poem = await callOpenAIAPI(prompt, process.env.OPENAI_API_KEY);
+                poem = await callOpenAIAPI(systemRole, userPrompt, process.env.OPENAI_API_KEY);
             } else {
                 console.log('❌ No API keys configured!');
                 return res.status(500).json({ error: 'No API keys configured' });
@@ -187,11 +194,12 @@ async function callAnthropicAPI(prompt, apiKey) {
     }
 }
 
-async function callOpenAIAPI(prompt, apiKey) {
+async function callOpenAIAPI(systemRole, userPrompt, apiKey) {
     console.log('🤖 OpenAI API Call Details:');
     console.log('- API Key length:', apiKey.length);
     console.log('- API Key prefix:', apiKey.substring(0, 10) + '...');
-    console.log('- Prompt length:', prompt.length);
+    console.log('- System role length:', systemRole.length);
+    console.log('- User prompt length:', userPrompt.length);
     console.log('- Model: gpt-4o');
     
     try {
@@ -201,8 +209,12 @@ async function callOpenAIAPI(prompt, apiKey) {
             temperature: 0.8,
             messages: [
                 {
+                    role: 'system',
+                    content: systemRole
+                },
+                {
                     role: 'user',
-                    content: prompt
+                    content: userPrompt
                 }
             ]
         };
