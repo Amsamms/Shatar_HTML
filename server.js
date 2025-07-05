@@ -40,39 +40,66 @@ app.post('/api/generate-poem', async (req, res) => {
             return res.status(400).json({ error: 'Missing required parameters' });
         }
 
-        // Create enhanced Arabic prompt with role-based instructions and specific meters
+        // Enhanced prompt with few-shot examples and chain of thought
+        const poetryExamples = {
+            'الطويل': {
+                pattern: 'فَعُولُن مَفَاعِيلُن فَعُولُن مَفَاعِلُن',
+                example: 'لَعَمْرُكَ مَا الأَيَّامُ إِلَّا مَعَارَةٌ\nفَمَا اسْتَطَلَتْ أَيَّامَهَا رُبَّ طُولِ'
+            },
+            'الكامل': {
+                pattern: 'مُتَفَاعِلُن مُتَفَاعِلُن مُتَفَاعِلُن',
+                example: 'بَدَا قَمَرٌ فِي لَيْلَةٍ ظَلْمَاءَ\nيُضِيءُ دُرُوبَ السَّائِرِينَ إِضَاءَةْ'
+            },
+            'البسيط': {
+                pattern: 'مُسْتَفْعِلُن فَاعِلُن مُسْتَفْعِلُن فَعِلُن',
+                example: 'إِذَا غَامَرْتَ فِي شَرَفٍ مَرُومِ\nفَلَا تَقْنَعْ بِمَا دُونَ النُّجُومِ'
+            }
+        };
+
         const systemRole = 'أنت شاعر عربي فصيح وخبير في العروض والقوافي، تُنشئ قصائد ملتزمة تماماً بالوزن والقافية وبالتشكيل.';
         
         const userPrompt = `اكتب قصيدة عربية جميلة عن موضوع "${theme}"
 
-المطلوب:
+أمثلة على البحور الشعرية:
 
-- عدد الأبيات: ${verses}
+🔹 البحر الطويل:
+التفعيلة: ${poetryExamples['الطويل'].pattern}
+مثال: ${poetryExamples['الطويل'].example}
 
-- اختر بحراً شعرياً واحداً من البحور التالية والتزم به بدقة:
+🔹 البحر الكامل:
+التفعيلة: ${poetryExamples['الكامل'].pattern}
+مثال: ${poetryExamples['الكامل'].example}
 
-  * البسيط: مُسْتَفْعِلُنْ فَاعِلُنْ مُسْتَفْعِلُنْ فَعِلُنْ
+🔹 البحر البسيط:
+التفعيلة: ${poetryExamples['البسيط'].pattern}
+مثال: ${poetryExamples['البسيط'].example}
 
-  * الطويل: فَعُولُنْ مَفَاعِيلُنْ فَعُولُنْ مَفَاعِلُنْ
+المطلوب (Chain of Thought):
 
-  * الكامل: مُتَفَاعِلُنْ مُتَفَاعِلُنْ مُتَفَاعِلُنْ
+1️⃣ **التحليل**: فكر في الموضوع "${theme}" وحدد المشاعر والصور المناسبة.
 
-- تأكد من التقطيع العروضي الصحيح والالتزام بالتفعيلات المحددة
+2️⃣ **اختيار البحر**: اختر بحراً واحداً من [الطويل، الكامل، البسيط] يناسب طبيعة الموضوع.
 
-- التزم بالوزن والقافية الموحدة في جميع الأبيات
+3️⃣ **التخطيط**: خطط لـ ${verses} أبيات مترابطة المعنى مع قافية موحدة.
 
-- اجعل المعنى واضحاً وجميلاً
+4️⃣ **الكتابة**: اكتب كل بيت ملتزماً بـ:
+   • التفعيلة المختارة بدقة
+   • القافية الموحدة
+   • التشكيل الكامل
+   • المعنى الواضح والجميل
 
-- استخدم لغة عربية فصحى مفهومة
+5️⃣ **المراجعة**: تأكد من صحة الوزن والقافية في كل بيت.
 
-- تأكد من صحة القافية وتماثلها في جميع الأبيات
+اكتب القصيدة مباشرة بدون مقدمات، مع جعل كل بيت في سطر منفصل.`;
 
-اكتب القصيدة مباشرة بدون مقدمات أو تعليقات. اجعل كل بيت في سطر منفصل.`;
-
-        // For Anthropic (no system role support, combine in user message)
+        // For Anthropic (combine system role with user prompt)
         const anthropicPrompt = `${systemRole}
 
 ${userPrompt}`;
+
+        // For OpenAI (separate system and user roles)
+        const openaiSystemRole = systemRole;
+        const openaiUserPrompt = userPrompt;
 
         // Debug logging
         console.log('🎭 Poetry generation request:', { theme, provider, verses });
@@ -88,7 +115,7 @@ ${userPrompt}`;
             poem = await callAnthropicAPI(anthropicPrompt, process.env.ANTHROPIC_API_KEY);
         } else if (provider === 'openai' && process.env.OPENAI_API_KEY) {
             console.log('📞 Calling OpenAI API...');
-            poem = await callOpenAIAPI(systemRole, userPrompt, process.env.OPENAI_API_KEY);
+            poem = await callOpenAIAPI(openaiSystemRole, openaiUserPrompt, process.env.OPENAI_API_KEY);
         } else {
             // Fallback to available provider
             if (process.env.ANTHROPIC_API_KEY) {
@@ -96,7 +123,7 @@ ${userPrompt}`;
                 poem = await callAnthropicAPI(anthropicPrompt, process.env.ANTHROPIC_API_KEY);
             } else if (process.env.OPENAI_API_KEY) {
                 console.log('📞 Fallback: Using OpenAI API...');
-                poem = await callOpenAIAPI(systemRole, userPrompt, process.env.OPENAI_API_KEY);
+                poem = await callOpenAIAPI(openaiSystemRole, openaiUserPrompt, process.env.OPENAI_API_KEY);
             } else {
                 console.log('❌ No API keys configured!');
                 return res.status(500).json({ error: 'No API keys configured' });
