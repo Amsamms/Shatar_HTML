@@ -6,6 +6,19 @@
     <title>مولد الشعر العربي - Shatar</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎭</text></svg>">
     
+    <!-- Google Analytics 4 (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-B5R3M3YHSH"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-B5R3M3YHSH', {
+            page_title: 'مولد الشعر العربي - Shatar',
+            page_location: window.location.href,
+            content_group1: 'Arabic Poetry Generator'
+        });
+    </script>
+    
     <!-- Arabic font from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
     
@@ -415,6 +428,15 @@
                     return;
                 }
 
+                // Track poem generation start
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'poem_generation_started', {
+                        theme: theme,
+                        verses: verses,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+
                 this.showLoading(true);
                 this.clearMessages();
 
@@ -422,8 +444,28 @@
                     const poem = await this.callBackendAPI(theme, verses);
                     this.displayPoem(poem, theme);
                     this.showMessage('تم إنشاء القصيدة بنجاح', 'success');
+                    
+                    // Track successful poem generation
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'poem_generated_success', {
+                            theme: theme,
+                            verses: verses,
+                            poem_length: poem.length,
+                            timestamp: new Date().toISOString()
+                        });
+                    }
                 } catch (error) {
                     this.showMessage(`خطأ: ${error.message}`, 'error');
+                    
+                    // Track poem generation error
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'poem_generation_error', {
+                            theme: theme,
+                            verses: verses,
+                            error: error.message,
+                            timestamp: new Date().toISOString()
+                        });
+                    }
                 } finally {
                     this.showLoading(false);
                 }
@@ -464,6 +506,17 @@
                 downloadBtn.href = url;
                 downloadBtn.download = `قصيدة_${theme.substring(0, 20)}.txt`;
 
+                // Add download tracking
+                downloadBtn.onclick = () => {
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'poem_downloaded', {
+                            theme: theme,
+                            poem_length: poem.length,
+                            timestamp: new Date().toISOString()
+                        });
+                    }
+                };
+
                 poemResult.style.display = 'block';
                 poemResult.scrollIntoView({ behavior: 'smooth' });
             }
@@ -473,6 +526,14 @@
                 try {
                     await navigator.clipboard.writeText(poemText);
                     this.showMessage('تم نسخ القصيدة بنجاح', 'success');
+                    
+                    // Track copy action
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'poem_copied', {
+                            poem_length: poemText.length,
+                            timestamp: new Date().toISOString()
+                        });
+                    }
                 } catch (error) {
                     this.showMessage('فشل في نسخ القصيدة', 'error');
                 }

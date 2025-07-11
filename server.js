@@ -131,6 +131,20 @@ ${userPrompt}`;
         }
 
         console.log('✅ Poem generated successfully');
+        
+        // Log analytics data for server monitoring
+        const analyticsData = {
+            event: 'poem_generated_server',
+            theme: theme,
+            verses: verses,
+            provider: provider || 'fallback',
+            timestamp: new Date().toISOString(),
+            poem_length: poem.length,
+            user_agent: req.headers['user-agent'],
+            ip: req.ip || req.connection.remoteAddress
+        };
+        console.log('📊 Analytics:', JSON.stringify(analyticsData, null, 2));
+        
         res.json({ poem, provider: provider || 'fallback' });
 
     } catch (error) {
@@ -140,6 +154,20 @@ ${userPrompt}`;
             status: error.status,
             provider: req.body.provider
         });
+        
+        // Log analytics data for error monitoring
+        const errorAnalytics = {
+            event: 'poem_generation_error_server',
+            theme: req.body.theme,
+            verses: req.body.verses,
+            provider: req.body.provider,
+            error: error.message,
+            timestamp: new Date().toISOString(),
+            user_agent: req.headers['user-agent'],
+            ip: req.ip || req.connection.remoteAddress
+        };
+        console.log('📊 Error Analytics:', JSON.stringify(errorAnalytics, null, 2));
+        
         res.status(500).json({ error: error.message });
     }
 });
@@ -151,6 +179,27 @@ app.get('/api/providers', (req, res) => {
         openai: !!process.env.OPENAI_API_KEY
     };
     res.json(providers);
+});
+
+// Analytics endpoint for monitoring (simple version)
+app.get('/api/analytics', (req, res) => {
+    const analyticsInfo = {
+        server_status: 'running',
+        google_analytics_id: 'G-B5R3M3YHSH',
+        tracking_events: [
+            'poem_generation_started',
+            'poem_generated_success', 
+            'poem_generation_error',
+            'poem_downloaded',
+            'poem_copied'
+        ],
+        providers_available: {
+            anthropic: !!process.env.ANTHROPIC_API_KEY,
+            openai: !!process.env.OPENAI_API_KEY
+        },
+        timestamp: new Date().toISOString()
+    };
+    res.json(analyticsInfo);
 });
 
 async function callAnthropicAPI(prompt, apiKey) {
@@ -305,6 +354,7 @@ app.listen(PORT, () => {
     console.log('- OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? 
         `✅ Set (${process.env.OPENAI_API_KEY.length} chars, starts with: ${process.env.OPENAI_API_KEY.substring(0, 10)}...)` : 
         '❌ Not set');
+    console.log('- GOOGLE_ANALYTICS_ID: G-B5R3M3YHSH ✅ Configured');
     console.log('');
     
     // Enhanced debugging - updated deployment trigger
